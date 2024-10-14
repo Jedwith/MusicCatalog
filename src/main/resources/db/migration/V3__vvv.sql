@@ -1,0 +1,2 @@
+INSERT INTO users (role_id, name, login, password, email)
+VALUES ((SELECT id FROM roles WHERE name = 'ROLE_USER'), 'Валера Шерстнев', 'user3', '$2a$12$vcfe1R2DyTYsWhnDKvZQLOTg/NcWfwjUuz2NrDvvN0wY89iL669NO', 'geniu_algoritmov@mail.ru');

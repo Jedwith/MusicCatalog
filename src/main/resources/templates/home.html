@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Music Catalog</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<style>
+    /*.table-actions {*/
+    /*    width: 300px; !* Установите нужную высоту *!*/
+    /*}*/
+</style>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <!-- Левая часть: название и ссылки -->
+        <a class="navbar-brand " href="#">Справочник меломана</a>
+        <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+                <a class="nav-link" th:if="${#authorization.expression('hasRole(''ADMIN'')')}" href="/add-music">Добавить новую песню</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:if="${#authorization.expression('hasRole(''ADMIN'')')}" href="/add-artist">Добавить нового артиста</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/user-profile}">Личный кабинет</a>
+            </li>
+        </ul>
+    </div>
+    <!-- Правая часть: приветствие и кнопка выхода -->
+    <div class="d-flex align-items-center">
+            <span class="navbar-text text-light me-3" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                Здравствуйте, <span th:if="${login != null}" th:text="${login.name}"></span>
+            </span>
+        <a class="btn btn-outline-danger me-3" th:href="@{/logout}">Выйти</a>
+    </div>
+</nav>
+<div class="container mt-3">
+    <h2>Фильтры</h2>
+    <form action="/" method="get" class="mb-4">
+        <div class="row mb-4">
+            <div class="col-auto">
+                <input type="text" name="author-name" class="form-control" th:value="${author_name}" placeholder="Имя артиста">
+            </div>
+            <div class="col-auto">
+                <input type="text" name="song-name" class="form-control" th:value="${song_name}" placeholder="Название песни">
+            </div>
+            <div class="col-auto d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">Найти</button>
+                <a href="/" class="btn btn-secondary">Сброс</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="container mt-4">
+    <table class="table table-bordered mx-auto">
+        <thead class="thead-light">
+        <tr>
+            <th>Артист</th>
+            <th>Название</th>
+            <th>Жанр</th>
+            <th>Продолжительность</th>
+            <th class="table-actions">Действие</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="song : ${songs}">
+            <td> <a th:href="@{'/artist-info/' + ${song.artist.id}}" th:text="${song.artist.name}"></a></td>
+            <td th:text="${song.title}"></td>
+            <td th:text="${song.genre}"></td>
+            <td th:text="${song.timeLength} + ' min'" style="width: 80px;"></td>
+            <td style="width: 300px;">
+                <a class="btn btn-primary btn-sm" th:href="@{'/song-info/' + ${song.id}}">Просмотреть</a>
+                <!-- Кнопки редактирования и удаления доступны только для пользователей с ролью ADMIN -->
+                <a class="btn btn-success btn-sm" th:if="${#authorization.expression('hasRole(''ADMIN'')')}" th:href="@{'/edit-song/' + ${song.id}}">Изменить</a>
+                <a class="btn btn-danger btn-sm" th:if="${#authorization.expression('hasRole(''ADMIN'')')}" th:href="@{'/remove-song/' + ${song.id}}">Удалить</a>
+            </td>
+
+        </tr>
+        </tbody>
+    </table>
+
+
+    <nav aria-label="Pagination" th:if="${songs.getTotalElements() > 0}">
+        <ul class="pagination pagination-sm justify-content-center"> <!-- Центрирование пагинации -->
+            <!-- Номера страниц -->
+            <li class="page-item" th:each="pageNumber : ${pageNumbers}"
+                th:classappend="${pageNumber == currentPage} ? 'active'">
+                <a class="page-link" th:href="@{'/?page=' + ${pageNumber - 1}
+                                        + ${author_name != '' && author_name !=null ? '&author-name=' + author_name : ''}
+                                        + ${song_name != '' && song_name !=null ? '&song-name=' + song_name : ''}}"
+                   th:text="${pageNumber}"></a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+
+
+    <!--    <div class="pagination" th:if="${songs.getTotalElements() > 0}">-->
+<!--                <span th:each="pageNumber : ${pageNumbers}">-->
+<!--                    <a th:href="@{'/?page=' + ${pageNumber - 1}-->
+<!--                                            + ${author_name != '' && author_name !=null ? '&author-name=' + author_name : ''}-->
+<!--                                            + ${song_name != '' && song_name !=null ? '&song-name=' + song_name : ''}}"-->
+<!--                       th:text="${pageNumber}"></a>-->
+<!--                </span>-->
+<!--    </div>-->
+<!-- Блок фильтров -->
+
+
+<footer class="bg-light text-center py-3">
+    <p>&copy; 2024 Music Catalog</p>
+</footer>
+
+<!-- Bootstrap JS and Popper.js -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
